@@ -1,0 +1,125 @@
+---
+title: The Power of Web Hooks!
+date: 2025-11-02
+tags:
+  - career
+  - cybersecurity
+  - knowledge-recap
+  - github-actions
+  - CI/CD
+  - open-source
+  - programming
+draft: "true"
+summary:
+---
+
+### What are Web Hooks?
+
+Web hooks allow developers to systemically deploy different projects together through the use of external systems and CI/CD technologies like GitHub Actions.
+
+### An Example
+
+Lets say you have two repositories: A blog web app and it's sources. With the correct setup you can initiate your blog web app deployment sequence by only updating the sources repository, which contains just contains the blog content and it's metadata.
+
+Because the data should be external to the web app, this kind of event-driven architecture is the perfect use-case for web hooks.
+
+==Parse the following into blog material:==
+
+This is a very common scenario in software development, and you've already identified the two main approaches: event-driven ("after a change") and scheduled ("at a fixed rate").
+
+Here’s how you can implement both, starting with the recommended method.
+
+### 🚀 Approach 1: The Event-Driven Way (Recommended)
+
+This is the most efficient and modern solution. It uses **webhooks** to trigger a **CI/CD pipeline** (like GitHub Actions) to run _only_ when your dependency repository changes.
+
+**Concept:**
+
+1. A developer pushes a change to `Repo-Dependency`.
+    
+2. GitHub/GitLab sends a webhook signal.
+    
+3. A GitHub Actions workflow in your _main_ `Repo-App` "catches" this signal.
+    
+4. The workflow wakes up, clones the latest versions of _both_ repositories, builds, tests, and then deploys your `Repo-App`.
+    
+
+**How to Implement with GitHub Actions:**
+
+This is the cleanest way, as your `Repo-App` doesn't need to store a full copy of `Repo-Dependency` in its own history. The deployment pipeline just "fetches" it when needed.
+
+**Step 1: In your `Repo-App`, create a workflow file.**
+
+Create a file like `.github/workflows/deploy.yml`. This file will define _two_ triggers: one for when you push to `Repo-App` (a normal deployment) and one for when `Repo-Dependency` changes (a `repository_dispatch`).
+
+YAML
+
+```
+# .github/workflows/deploy.yml in Repo-App
+name: Build and Deploy
+
+on:
+  # 1. Triggers on a direct push to this repo (Repo-App)
+  push:
+    branches:
+      - main
+
+  # 2. Triggers when Repo-Dependency sends a signal
+  repository_dispatch:
+    types: [dependency-updated]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎️ Check out Repo-App (this repo)
+        uses: actions/checkout@v4
+        with:
+          path: 'app' # Clone this repo into a directory named 'app'
+
+      - name: 📚 Check out Repo-Dependency
+        uses: actions/checkout@v4
+        with:
+          repository: 'your-username/Repo-Dependency' # The OTHER repo
+          path: 'app/dependency' # Clone it to a specific path inside your app
+          # Note: You might need a personal access token (PAT) if the repo is private
+
+      - name: 🚀 Build, Test, and Deploy
+        run: |
+          cd app
+          # Your build steps go here. 
+          # The 'dependency' folder now contains the latest code.
+          echo "Building app..."
+          # ... your build command (e.g., make, npm install, etc.)
+          # ... your deploy command (e.g., scp, rsync, etc.)
+```
+
+**Step 2: In `Repo-Dependency`, create a workflow to send the signal.**
+
+Now, in your _other_ repository (`Repo-Dependency`), you need a simple workflow that sends the `repository_dispatch` signal whenever _it_ gets updated.
+
+Create `.github/workflows/notify.yml` in `Repo-Dependency`.
+
+YAML
+
+```
+# .github/workflows/notify.yml in Repo-Dependency
+name: Notify App Repo
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚀 Send dispatch signal to Repo-App
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.YOUR_PAT_TOKEN }} # Needs a PAT with 'repo' scope
+          repository: 'your-username/Repo-App'  # The main app repo
+          event-type: 'dependency-updated'     # The custom type we defined in Step 1
+```
+
+> **Important:** You will need to create a **Personal Access Token (PAT)** in your GitHub settings (with `repo` scope) and save it as a repository secret named `YOUR_PAT_TOKEN` in your `Repo-Dependency`.
