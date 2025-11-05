@@ -7,7 +7,7 @@ tags:
   - soc-analyst
   - blue-team
   - knowledge-recap
-draft:
+draft: "true"
 summary: In this blog we will go over the fundamentals of SOC or Security Operations Center.
 ---
 
@@ -45,4 +45,61 @@ The difference between analyst and a detection engineer is that the engineer is 
 
 ### SOC Tiers
 
-There is usually a hierarchy of analysts in a particular team. Tier 1 are front line defenders, Tier 2 use more complex log to track activity, and Tier 3 uses everything they can to response to the incident. Each tier esculates to the next when they run out of resources.
+There is usually a hierarchy of analysts in a particular team. Tier 1 are front line defenders, Tier 2 use more complex log to track activity, and Tier 3 uses everything they can to response to the incident. Each tier esculates to the next when they run out of resources. Tier 3 is used as a final defense against an attack once it's found and still on-going.
+
+### Quick Vocab
+- Security Information and Event Management (SIEM)
+- Security, Orchestration, Automation and Response (SOAR)
+- Endpoint Detection and Response (EDR)
+- Triage
+- XDR (super EDR)
+  - on multiple endpoints
+- IDS/IPS
+  - installed on network as opposed to XDR and EDR
+- IAM
+- Ticket
+  - Difference between engineering and analyst ticket is that the engineering ticket is software-orientated, whereas the analyst ticket is focused on the consequences of a problem.
+  - Triage and Alert (escalate)
+- Ticket Escalation
+- Asset
+- IOC
+  - evidence of attack
+- Artifact
+  - more general information about the incident
+- Network Detection & Response (NDR)
+  - EDR for network (IPS/IDS but for network and smaller cost)
+  - Way more verbose; it has way more logs compared to IPS/IDS.
+
+(PortMaster)
+
+#### SOC-like terms
+- SOC
+  - work for on org
+- MSSP
+  - soc for hire
+  - esculate to client
+  - external, similar to external socs
+  - reliaquest is an e.g.
+- NOC
+  - IT related
+  - networking
+  - usually internal
+
+### SOC Philosophy
+
+- zero trust
+- empirical approach
+- noramlity and sensitivity to unusual activity
+
+### SOC Analyst Logs
+There are various different kinds of events that can be documented through logs.
+These are some specific types:
+- Event
+- System
+- Access
+- Server
+- Change
+
+### OSINT
+Open source intelligence is a way to gather intel from open sources.
+
