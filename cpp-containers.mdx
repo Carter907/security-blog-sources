@@ -1,0 +1,44 @@
+---
+title: STL Containers
+date: 2025-12-21
+tags:
+  - knowledge-recap
+  - c-plus-plus
+  - data-structure
+  - algorithms
+draft: "false"
+summary: In this blog, I cover the implementations of each STL container and how they can be used in C++
+---
+### std::vector\<T>
+
+Vectors in C++ are considered the default container for general use-cases. They represent a dynamic array but usually allocate more memory to avoid constant reallocations. 
+
+#### Space and Capacity
+
+A vector is segmented in memory by 3 pointers, a pointer to the first element, a pointer to one past the last element, and a pointer to the one past final address of allocated storage.
+
+![[assets/vector_diagram.png]]
+Here we should the relation between vector's pointers an where they point to in the vector's contiguous memory.
+### Operations
+
+vectors are very useful for keep track of a growing collection of objects. For instance, here is some that adds all the directory elements to a vector based on certain criteria:
+
+```cpp
+// ...
+std::vector<fs::path> templs{}; // default list initialized
+if (fs::exists(TEMPLATES_DIR) && fs::is_directory(TEMPLATES_DIR)) {
+    // range-based for loop over directory containing project templates
+    for (const auto &e : fs::directory_iterator{TEMPLATES_DIR}) {
+      fs::path file_name{e.path().filename()};
+      bool is_hidden{file_name.string().starts_with('.')};
+      // checking if the directory entry is a directory and isn't hidden
+      if (e.is_directory() && !is_hidden) {
+        templs.push_back(file_name); // push path name to the end of the vector with the push_back() member function
+      }
+    }
+}
+// ...
+```
+
+Here we traverse a directory using std::filesystem facilities and add file names as fs::path type to a vector if they are not hidden and are directories.
+
